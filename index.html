@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ru" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeonDrive | Cyberpunk Car Rental</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#050505',
+                        neonCyan: '#00f2fe',
+                        neonPink: '#ff0844',
+                        neonPurple: '#b300ff'
+                    },
+                    fontFamily: {
+                        sans: ['Rajdhani', 'sans-serif'],
+                        mono: ['Share Tech Mono', 'monospace'],
+                    },
+                    boxShadow: {
+                        'neon-cyan': '0 0 10px rgba(0, 242, 254, 0.5), 0 0 20px rgba(0, 242, 254, 0.3)',
+                        'neon-pink': '0 0 10px rgba(255, 8, 68, 0.5), 0 0 20px rgba(255, 8, 68, 0.3)',
+                        'neon-pink-hover': '0 0 15px rgba(255, 8, 68, 0.8), 0 0 30px rgba(255, 8, 68, 0.6), 0 0 45px rgba(255, 8, 68, 0.4)',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            background-color: #050505;
+            color: #e4e4e7;
+            overflow-x: hidden;
+        }
+
+        /* Scanlines (Эффект старого монитора) */
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.2));
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 50;
+            opacity: 0.6;
+        }
+
+        /* Анимации появления */
+        .cyber-reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s cubic-bezier(0.0, 0.9, 0.1, 1.0); 
+        }
+        .cyber-reveal.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .delay-100 { transition-delay: 100ms; }
+        .delay-200 { transition-delay: 200ms; }
+
+        /* Glitch Effect для главного заголовка */
+        .glitch {
+            position: relative;
+            color: white;
+            display: inline-block;
+        }
+        .glitch::before, .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+        }
+        .glitch::before {
+            left: 3px;
+            text-shadow: -2px 0 #ff0844;
+            clip-path: polygon(0 0, 100% 0, 100% 30%, 0 30%);
+            animation: glitch-anim-1 3s infinite linear alternate-reverse;
+        }
+        .glitch::after {
+            left: -3px;
+            text-shadow: -2px 0 #00f2fe;
+            clip-path: polygon(0 70%, 100% 70%, 100% 100%, 0 100%);
+            animation: glitch-anim-2 2.5s infinite linear alternate-reverse;
+        }
+        @keyframes glitch-anim-1 {
+            0% { clip-path: polygon(0 10%, 100% 10%, 100% 20%, 0 20%); }
+            20% { clip-path: polygon(0 40%, 100% 40%, 100% 60%, 0 60%); }
+            40% { clip-path: polygon(0 80%, 100% 80%, 100% 90%, 0 90%); }
+            60% { clip-path: polygon(0 15%, 100% 15%, 100% 25%, 0 25%); }
+            80% { clip-path: polygon(0 50%, 100% 50%, 100% 55%, 0 55%); }
+            100% { clip-path: polygon(0 70%, 100% 70%, 100% 80%, 0 80%); }
+        }
+        @keyframes glitch-anim-2 {
+            0% { clip-path: polygon(0 25%, 100% 25%, 100% 30%, 0 30%); }
+            20% { clip-path: polygon(0 55%, 100% 55%, 100% 70%, 0 70%); }
+            40% { clip-path: polygon(0 90%, 100% 90%, 100% 100%, 0 100%); }
+            60% { clip-path: polygon(0 5%, 100% 5%, 100% 15%, 0 15%); }
+            80% { clip-path: polygon(0 60%, 100% 60%, 100% 65%, 0 65%); }
+            100% { clip-path: polygon(0 85%, 100% 85%, 100% 95%, 0 95%); }
+        }
+
+        /* Кнопки и карточки с жесткими углами */
+        .cyber-button {
+            position: relative;
+            background: transparent;
+            color: #fff;
+            border: 2px solid #ff0844;
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%);
+            transition: all 0.3s ease;
+        }
+        .cyber-button:hover {
+            background: #ff0844;
+            box-shadow: 0 0 15px rgba(255, 8, 68, 0.8), 0 0 30px rgba(255, 8, 68, 0.6);
+            text-shadow: 0 0 5px white;
+        }
+        .cyber-button::after {
+            content: '';
+            position: absolute;
+            bottom: -2px; right: -2px;
+            width: 15px; height: 15px;
+            background: #00f2fe;
+            clip-path: polygon(100% 0, 0 100%, 100% 100%);
+        }
+
+        .cyber-card {
+            background: rgba(10, 10, 10, 0.8);
+            border: 1px solid rgba(0, 242, 254, 0.2);
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%);
+            transition: all 0.3s ease;
+        }
+        .cyber-card:hover {
+            border-color: #00f2fe;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.2) inset;
+        }
+        
+        /* Декоративный шум поверх картинок */
+        .img-noise::after {
+            content: ''; position: absolute; inset: 0;
+            background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyBAMAAADsEZWCAAAAGFBMVEUAAAAAAAB8fHx8fHx8fHx8fHx8fHx8fHx8fHymO8yKAAAACHRSTlMAMwAzADMzM822b2IAAAAhSURBVDjLjYxBDQAwCAS9+le6wQ0Y2A2YAIYNYAIYNvjZ1t2tG3yT6T8AAAAASUVORK5CYII=') repeat;
+            opacity: 0.1;
+            mix-blend-mode: overlay;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Глобальный эффект Scanlines -->
+    <div class="scanlines"></div>
+
+    <!-- Навигация -->
+    <header class="fixed top-0 left-0 right-0 z-40 bg-black/80 backdrop-blur-md border-b border-neonCyan/30">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" class="font-mono text-2xl font-bold text-white tracking-widest flex items-center gap-2 drop-shadow-[0_0_8px_rgba(0,242,254,0.8)]">
+                <i class="fa-solid fa-bolt text-neonCyan"></i> NEON_DRIVE
+            </a>
+            
+            <nav class="hidden md:flex space-x-8 font-mono text-sm tracking-widest text-zinc-400">
+                <a href="#fleet" class="hover:text-neonCyan transition-colors">// ФЛОТ</a>
+                <a href="#specs" class="hover:text-neonPink transition-colors">// ХАРАКТЕРИСТИКИ</a>
+                <a href="#terminal" class="hover:text-white transition-colors">// ТЕРМИНАЛ</a>
+            </nav>
+
+            <a href="#rent" class="hidden md:inline-block cyber-button px-6 py-2 font-mono text-sm font-bold tracking-widest uppercase">
+                АРЕНДОВАТЬ
+            </a>
+        </div>
+    </header>
+
+    <!-- Главный экран (Hero) -->
+    <section class="relative min-h-screen flex items-center pt-20 border-b border-white/10">
+        <!-- Фоновое изображение -->
+        <div class="absolute inset-0 z-0 img-noise">
+            <img src="https://images.unsplash.com/photo-1555680202-c86f0e12f086?q=80&w=1920&auto=format&fit=crop" alt="Night City Car" class="w-full h-full object-cover opacity-30 object-center">
+            <div class="absolute inset-0 bg-gradient-to-t from-darkBg via-transparent to-darkBg"></div>
+            <div class="absolute inset-0 bg-gradient-to-r from-darkBg via-darkBg/50 to-transparent"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-6 relative z-10 w-full">
+            <div class="max-w-3xl">
+                <div class="cyber-reveal bg-neonCyan text-black font-mono text-xs font-bold px-3 py-1 inline-block mb-6 uppercase tracking-widest">
+                    SYSTEM_ONLINE // V 2.0.4
+                </div>
+                
+                <h1 class="cyber-reveal delay-100 font-sans text-6xl md:text-8xl font-bold uppercase leading-none mb-6">
+                    <span class="glitch" data-text="ДОМИНИРУЙ">ДОМИНИРУЙ</span><br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-neonCyan to-neonPurple">В НЕОНЕ</span>
+                </h1>
+                
+                <p class="cyber-reveal delay-200 font-mono text-zinc-400 text-lg md:text-xl mb-10 max-w-xl">
+                    Аренда эксклюзивных спорткаров. Оставь след на ночных улицах. Подключись к матрице скорости.
+                </p>
+                
+                <div class="cyber-reveal delay-300 flex flex-col sm:flex-row gap-4">
+                    <a href="#fleet" class="cyber-button px-8 py-4 font-mono font-bold tracking-widest text-center text-sm">
+                        ВЫБРАТЬ ТАЧКУ
+                    </a>
+                    <a href="#about" class="px-8 py-4 font-mono font-bold tracking-widest text-center text-sm border border-zinc-700 hover:border-neonCyan hover:text-neonCyan transition-colors">
+                        ПРОТОКОЛЫ
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Декоративные элементы HUD -->
+        <div class="absolute bottom-10 right-10 font-mono text-xs text-neonCyan/50 hidden md:block text-right pointer-events-none">
+            <p>LAT: 35.6895° N</p>
+            <p>LNG: 139.6917° E</p>
+            <p class="animate-pulse">SIGNAL: SECURE</p>
+        </div>
+    </section>
+
+    <!-- Автопарк -->
+    <section id="fleet" class="py-24 relative bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAyKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmurlI#gridKSIvPjwvc3ZnPg==')]">
+        <div class="max-w-7xl mx-auto px-6 relative z-10">
+            <div class="cyber-reveal flex flex-col md:flex-row justify-between items-end mb-16 border-b border-white/10 pb-6">
+                <div>
+                    <span class="font-mono text-neonPink text-sm tracking-widest block mb-2">ACCESS_LEVEL: GUEST</span>
+                    <h2 class="font-sans text-4xl md:text-5xl font-bold uppercase">Доступный флот</h2>
+                </div>
+                <div class="font-mono text-zinc-500 text-sm mt-4 md:mt-0">
+                    Найдено: 03 совпадений
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Машина 1 -->
+                <div class="cyber-reveal cyber-card group relative">
+                    <div class="h-64 overflow-hidden relative img-noise">
+                        <img src="https://images.unsplash.com/photo-1614200187524-dc4b892acf16?q=80&w=800&auto=format&fit=crop" alt="Car 1" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <div class="absolute top-4 left-4 bg-neonCyan text-black font-mono text-xs px-2 py-1 font-bold">TYPE: SPORT</div>
+                    </div>
+                    <div class="p-6 relative">
+                        <h3 class="font-sans text-2xl font-bold uppercase mb-2 group-hover:text-neonCyan transition-colors">Valkyrie X</h3>
+                        <div class="font-mono text-sm text-zinc-400 mb-6 space-y-1">
+                            <p class="flex justify-between"><span>Движок:</span> <span class="text-white">Гибрид V8</span></p>
+                            <p class="flex justify-between"><span>0-100:</span> <span class="text-white">2.8s</span></p>
+                            <p class="flex justify-between"><span>Статус:</span> <span class="text-neonCyan animate-pulse">СВОБОДНА</span></p>
+                        </div>
+                        <a href="#" class="block w-full border border-white/20 text-center py-2 font-mono text-sm tracking-widest hover:bg-neonCyan hover:text-black hover:border-neonCyan transition-all uppercase font-bold">Инициировать</a>
+                        
+                        <div class="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-neonCyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    </div>
+                </div>
+
+                <!-- Машина 2 -->
+                <div class="cyber-reveal delay-100 cyber-card group relative">
+                    <div class="h-64 overflow-hidden relative img-noise">
+                        <img src="https://images.unsplash.com/photo-1580273916550-e323be2ae537?q=80&w=800&auto=format&fit=crop" alt="Car 2" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <div class="absolute top-4 left-4 bg-neonPink text-white font-mono text-xs px-2 py-1 font-bold">TYPE: MUSCLE</div>
+                    </div>
+                    <div class="p-6 relative">
+                        <h3 class="font-sans text-2xl font-bold uppercase mb-2 group-hover:text-neonPink transition-colors">Nightrunner</h3>
+                        <div class="font-mono text-sm text-zinc-400 mb-6 space-y-1">
+                            <p class="flex justify-between"><span>Движок:</span> <span class="text-white">Электро-Плазма</span></p>
+                            <p class="flex justify-between"><span>0-100:</span> <span class="text-white">3.1s</span></p>
+                            <p class="flex justify-between"><span>Статус:</span> <span class="text-neonPink animate-pulse">В РЕЙСЕ</span></p>
+                        </div>
+                        <a href="#" class="block w-full border border-white/20 text-center py-2 font-mono text-sm tracking-widest hover:bg-neonPink hover:text-white hover:border-neonPink transition-all uppercase font-bold">В лист ожидания</a>
+                        
+                        <div class="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-neonPink opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    </div>
+                </div>
+
+                <!-- Машина 3 (Исправленная картинка) -->
+                <div class="cyber-reveal delay-200 cyber-card group relative">
+                    <div class="h-64 overflow-hidden relative img-noise">
+                        <img src="https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?q=80&w=800&auto=format&fit=crop" alt="Car 3" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0">
+                        <div class="absolute top-4 left-4 bg-neonPurple text-white font-mono text-xs px-2 py-1 font-bold">TYPE: LUXURY</div>
+                    </div>
+                    <div class="p-6 relative">
+                        <h3 class="font-sans text-2xl font-bold uppercase mb-2 group-hover:text-neonPurple transition-colors">Phantom V</h3>
+                        <div class="font-mono text-sm text-zinc-400 mb-6 space-y-1">
+                            <p class="flex justify-between"><span>Движок:</span> <span class="text-white">Квантовый</span></p>
+                            <p class="flex justify-between"><span>0-100:</span> <span class="text-white">3.8s</span></p>
+                            <p class="flex justify-between"><span>Статус:</span> <span class="text-neonCyan animate-pulse">СВОБОДНА</span></p>
+                        </div>
+                        <a href="#" class="block w-full border border-white/20 text-center py-2 font-mono text-sm tracking-widest hover:bg-neonPurple hover:text-white hover:border-neonPurple transition-all uppercase font-bold">Инициировать</a>
+                        
+                        <div class="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-neonPurple opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Характеристики / Баннер -->
+    <section id="specs" class="py-24 bg-neonCyan text-black relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-10 bg-darkBg" style="clip-path: polygon(0 0, 100% 0, 100% 0, 0 100%);"></div>
+        <div class="absolute bottom-0 left-0 w-full h-10 bg-darkBg" style="clip-path: polygon(0 100%, 100% 100%, 100% 0, 0 100%);"></div>
+
+        <div class="max-w-7xl mx-auto px-6 relative z-10 flex flex-col md:flex-row items-center gap-12">
+            <div class="cyber-reveal flex-1">
+                <h2 class="font-sans text-5xl md:text-7xl font-bold uppercase mb-6 leading-none">Не просто аренда.<br>Эволюция.</h2>
+                <p class="font-mono font-bold text-lg mb-8 max-w-md">Все машины оснащены нейро-интерфейсом и автопилотом уровня 5. Полная анонимность. Оплата в крипте.</p>
+                <div class="grid grid-cols-2 gap-6 font-mono">
+                    <div>
+                        <div class="text-4xl font-black">100%</div>
+                        <div class="text-sm font-bold uppercase border-t border-black pt-1">Конфиденциальность</div>
+                    </div>
+                    <div>
+                        <div class="text-4xl font-black">24/7</div>
+                        <div class="text-sm font-bold uppercase border-t border-black pt-1">Поддержка ИИ</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="cyber-reveal delay-200 flex-1 relative w-full h-80 bg-black cyber-card overflow-hidden group">
+                <img src="https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?q=80&w=800&auto=format&fit=crop" alt="Engine" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500">
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <i class="fa-solid fa-microchip text-6xl text-neonCyan animate-pulse drop-shadow-[0_0_15px_rgba(0,242,254,0.8)]"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Подвал (Терминал) -->
+    <footer id="terminal" class="bg-darkBg pt-24 pb-12 border-t border-white/10 relative">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="cyber-reveal mb-16">
+                <h3 class="font-mono text-neonPink text-xl font-bold mb-4">> INITIALIZE_CONNECTION...</h3>
+                <div class="bg-black/80 border border-zinc-800 p-6 font-mono text-zinc-400 text-sm h-48 overflow-y-hidden relative group">
+                    <p class="mb-2">> PING NEON_DRIVE_SERVER</p>
+                    <p class="mb-2 text-white">REPLY: ACCEPTED. LATENCY 4ms.</p>
+                    <p class="mb-2">> FETCH CONTACT_INFO</p>
+                    <p class="mb-2 text-neonCyan">EMAIL: netrunner@neondrive.com</p>
+                    <p class="mb-2 text-neonCyan">CRYPTO: 0x9a7F...c34D (ETH/BTC ACCEPTED)</p>
+                    <p class="mb-2 animate-pulse text-white">> _</p>
+                    
+                    <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent pointer-events-none"></div>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row justify-between items-center border-t border-white/10 pt-8 font-mono text-xs text-zinc-500 uppercase">
+                <p>&copy; 2026 NEON_DRIVE CORP. ALL RIGHTS RESERVED.</p>
+                <div class="flex space-x-6 mt-4 md:mt-0 text-white">
+                    <a href="#" class="hover:text-neonCyan transition-colors">DISCORD</a>
+                    <a href="#" class="hover:text-neonPink transition-colors">TWITTER</a>
+                </div>
+                <p class="mt-4 md:mt-0">DEVELOPED BY <span class="text-neonCyan font-bold">REPUTATION LAB</span></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Скрипт для анимаций -->
+    <script>
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                }
+            });
+        }, { threshold: 0.1, rootMargin: "0px" });
+
+        document.querySelectorAll('.cyber-reveal').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
